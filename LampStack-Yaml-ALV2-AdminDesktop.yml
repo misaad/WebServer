@@ -1,0 +1,29 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+    LampStackServer1:
+        Type: 'AWS::EC2::Instance'
+        Properties:
+            AvailabilityZone: 'us-east-1d'
+            ImageId: 'ami-0b69ea66ff7391e80'
+            InstanceInitiatedShutdownBehavior: 'stop'
+            InstanceType: 't2.micro'
+            Tags:
+                - Key: 'Name'
+                  Value: 'WebServer'
+                - Key: 'Environment' 
+                  Value: 'Development'
+            SubnetId: 'subnet-87cc7ef1'
+            SecurityGroupIds:
+                - sg-307c7f49
+            KeyName: 'Admin-Desktop'
+            UserData:
+                Fn::Base64: 
+                  !Sub |
+                    #!/bin/bash
+                    yum update -y
+                    amazon-linux-extras install -y lamp-mariadb10.2-php7.2 php7.2
+                    yum install -y httpd mariadb-server
+                    systemctl start httpd
+                    systemctl enable httpd
+                    echo "<?php phpinfo(); ?>" > /var/www/html/phpinfo.php
+                    echo '<div style="font-size:12.25em;color:blue">Welcome Hitachi!!</div>' > /var/www/html/welcome.php
